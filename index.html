@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Druckerei Kasse</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+</head>
+<body>
+  <div class="container container-fluid">
+  <h1 class="m-4">Druckerei Kasse</h1>
+    
+  <div class="container border rounded p-3">
+    <!--
+    <h2>Grundbetrag</h2>
+
+    <div>
+        <label for="base">Grundbetrag:</label>
+        <select class="form-select" name="base" id="base" onchange="calculatePrice()">
+            <option value="default" selected>Standard (5S€)</option>
+            <option value="partner">Partner (0S€)</option>
+        </select>
+    </div>
+    -->
+
+    <h2 class="mt-3">Druck</h2>
+
+    <div>
+        <label for="pageSize">Seitengröße:</label>
+        <select class="form-select" name="pageSize" id="pageSize" onchange="calculatePrice()">
+            <option value="A4" selected>DIN A4</option>
+            <option value="A3">DIN A3 (doppleter Preis)</option>
+        </select>
+    </div>
+    
+    <div>
+      <label for="pageType">Typ:</label>
+      <select class="form-select" id="pageType" onchange="calculatePrice()">
+        <option value="black-white" selected>Schwarz-Weiß (1S€/Seite)</option>
+        <option value="color">Farbe (3S€/Seite)</option>
+        <option value="custom">Individuell</option>
+      </select>
+    </div>
+
+    <div id="custom-price-container">
+        <label for="customPrice">Individueller Preis (in S€/Seite):</label>
+        <input class="form-control" type="number" name="customPrice" id="customPrice" min="0.1" max="20">
+    </div>
+
+    <h2 class="mt-3">Anzahl</h2>
+
+    <div>
+      <label for="pageNumber">Anzahl Seiten:</label>
+      <input type="number" class="form-control" id="pageNumber" min="1" max="50" value="1" onchange="calculatePrice()" onkeyup="calculatePrice()">
+    </div>
+    
+    <h2 class="mt-3">Zusätzliche Dienstleistungen</h2>
+
+    <div>
+        <div class="form-check">
+            <input type="checkbox" name="delivery" id="delivery" class="form-check-input" onchange="calculatePrice()">
+            <label for="delivery" class="form-check-label">Lieferung (2S€)</label>
+        </div>
+    </div>
+
+    <div>
+        <div class="form-check">
+            <input type="checkbox" name="folding" id="folding" class="form-check-input" onchange="calculatePrice()">
+            <label for="folding" class="form-check-label">Flyer falten (1S€/Seite)</label>
+        </div>
+    </div>
+
+    <div>
+        <div class="form-check">
+            <input type="checkbox" name="bill" id="bill" class="form-check-input" onchange="calculatePrice()">
+            <label for="bill" class="form-check-label">Schriftliche Rechnung (2S€)</label>
+        </div>
+    </div>
+
+    <div id="customer-name-container">
+        <label for="customer-name">Kunde</label>
+        <input type="text" name="customer-name" id="cusomer-name" class="form-control">
+    </div>
+
+    <h2 class="mt-3">Angebote</h2>
+
+    <div>
+        <div class="form-check">
+            <input type="checkbox" name="show-discount" id="show-discount" class="form-check-input" onchange="calculatePrice()">
+            <label for="show-discount" class="form-check-label">Rabatt</label>
+        </div>
+    </div>
+
+    <div id="discount-container">
+        <label for="discount" class="m-3">Rabatt in %:</label>
+        <input type="number" class="form-control" name="discount" id="discount" min="0" max="90" onchange="calculatePrice()" onkeyup="calculatePrice()" value="0">
+    </div>
+
+    <hr>
+
+    <h2 class="mt-3">Abrechnung</h2>
+
+    <div>
+        <div class="form-check">
+            <input type="checkbox" name="round" id="round" class="form-check-input" onchange="calculatePrice()">
+            <label for="round" class="form-check-label">Ergebnis runden</label>
+        </div>
+    </div>
+
+    <h2>Summe</h2>
+    
+    <div>
+      <label for="resultBox">Endpreis:</label>
+      <input type="text" class="form-control is-valid" id="resultBox" readonly>
+    </div>
+  </div>
+
+  </div>
+  
+  <script defer>
+    var priceColor = 3;
+    var priceBlackWhite = 1;
+
+    function calculatePrice() {
+      let price = 0;
+      // Get the values from the input elements
+      let pageNumber = document.getElementById("pageNumber").value;
+      let pageType = document.getElementById("pageType").value;
+      let pageSize = document.getElementById("pageSize").value;
+      let discount = document.getElementById("discount").value;
+
+      if (pageNumber == "" || pageNumber == null) {
+        document.getElementById("pageNumber").value = 0;
+        return;
+      }
+      
+      // Perform the calculation based on the values
+      let priceMultiplier = 0;
+      if (pageType == "custom") {
+        document.getElementById("custom-price-container").classList.remove("d-none");
+        if (document.getElementById("customPrice").value == "" || document.getElementById("customPrice").value == null) {
+            document.getElementById("customPrice").value = priceColor;
+            return
+        }
+        priceMultiplier = document.getElementById("customPrice").value;
+      } else {
+        document.getElementById("custom-price-container").classList.add("d-none");
+        priceMultiplier = (pageType == "color" ? priceColor : priceBlackWhite);
+      }
+
+      price = price + pageNumber * priceMultiplier * (pageSize === "A3" ? 2 : 1);
+
+      // Warn about big page counts
+      if (pageNumber > 50) {
+        document.getElementById("pageNumber").classList.add("is-invalid");
+        document.getElementById("resultBox").classList.add("is-invalid");
+      } else {
+        document.getElementById("pageNumber").classList.remove("is-invalid");
+        document.getElementById("resultBox").classList.remove("is-invalid");
+      }
+
+      // delivery
+      if (document.getElementById("delivery").checked) {
+        price += 2;
+      }
+
+      // folding
+      if (document.getElementById("folding").checked) {
+        price += 1 * pageNumber;
+      }
+
+      // bill
+      if (document.getElementById("bill").checked) {
+        document.getElementById("customer-name-container").classList.remove("d-none");
+        price += 2;
+      } else {
+        document.getElementById("customer-name-container").classList.add("d-none");
+      }
+
+      // calculate discount
+      if (document.getElementById("show-discount").checked) {
+        document.getElementById("discount-container").classList.remove("d-none");
+        if (discount == "" || discount == null) {
+          document.getElementById("discount").value = 0;
+          return;
+        }
+        if (discount > 90) {
+          document.getElementById("discount").value = 90;
+          return;
+        }
+        price = price * (0.01 * (100 - discount));
+      } else {
+        document.getElementById("discount-container").classList.add("d-none");
+      }
+
+      
+      // Set the calculated price in the result box
+      document.getElementById("resultBox").value = (document.getElementById("round").checked ? Math.ceil(price) : price.toFixed(2));
+    }
+
+    calculatePrice();
+  </script>
+</body>
+</html>
