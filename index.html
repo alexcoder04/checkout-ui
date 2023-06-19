@@ -7,95 +7,92 @@
   
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="/index.js" defer></script>
 </head>
 <body>
   <div class="container container-fluid">
   <h1 class="m-4">Druckerei Kasse</h1>
     
   <div class="container border rounded p-3">
-    <!--
-    <h2>Grundbetrag</h2>
-
-    <div>
-        <label for="base">Grundbetrag:</label>
-        <select class="form-select" name="base" id="base" onchange="calculatePrice()">
-            <option value="default" selected>Standard (5S€)</option>
-            <option value="partner">Partner (0S€)</option>
-        </select>
-    </div>
-    -->
-
     <h2 class="mt-3">Druck</h2>
+    
+    <div>
+      <label for="pageType">Typ:</label>
+      <select class="form-select" id="pageType" onchange="refresh()">
+        <option value="black-white" selected>Schwarz-Weiß (0.5€/Seite)</option>
+        <option value="color">Farbe (4€/Seite)</option>
+        <!--<option value="custom">Individuell</option>-->
+      </select>
+    </div>
 
     <div>
         <label for="pageSize">Seitengröße:</label>
-        <select class="form-select" name="pageSize" id="pageSize" onchange="calculatePrice()">
+        <select class="form-select" name="pageSize" id="pageSize" onchange="refresh()">
             <option value="A4" selected>DIN A4</option>
             <option value="A3">DIN A3 (doppleter Preis)</option>
         </select>
     </div>
-    
-    <div>
-      <label for="pageType">Typ:</label>
-      <select class="form-select" id="pageType" onchange="calculatePrice()">
-        <option value="black-white" selected>Schwarz-Weiß (1S€/Seite)</option>
-        <option value="color">Farbe (3S€/Seite)</option>
-        <option value="custom">Individuell</option>
-      </select>
-    </div>
 
+    <!--
     <div id="custom-price-container">
-        <label for="customPrice">Individueller Preis (in S€/Seite):</label>
+        <label for="customPrice">Individueller Preis (in €/Seite):</label>
         <input class="form-control" type="number" name="customPrice" id="customPrice" min="0.1" max="20">
     </div>
+    -->
 
     <h2 class="mt-3">Anzahl</h2>
 
     <div>
       <label for="pageNumber">Anzahl Seiten:</label>
-      <input type="number" class="form-control" id="pageNumber" min="1" max="50" value="1" onchange="calculatePrice()" onkeyup="calculatePrice()">
+      <input type="number" class="form-control" id="pageNumber" min="1" max="50" value="1" onchange="refresh()" onkeyup="refresh()">
     </div>
     
     <h2 class="mt-3">Zusätzliche Dienstleistungen</h2>
 
     <div>
         <div class="form-check">
-            <input type="checkbox" name="delivery" id="delivery" class="form-check-input" onchange="calculatePrice()">
-            <label for="delivery" class="form-check-label">Lieferung (2S€)</label>
+            <input type="checkbox" name="delivery" id="delivery" class="form-check-input" onchange="refresh()">
+            <label for="delivery" class="form-check-label">Lieferung (2€)</label>
         </div>
     </div>
 
+    <!--
     <div>
         <div class="form-check">
-            <input type="checkbox" name="folding" id="folding" class="form-check-input" onchange="calculatePrice()">
-            <label for="folding" class="form-check-label">Flyer falten (1S€/Seite)</label>
+            <input type="checkbox" name="folding" id="folding" class="form-check-input" onchange="refresh()">
+            <label for="folding" class="form-check-label">Flyer falten (1€/Seite)</label>
         </div>
     </div>
+    -->
 
+    <!--
     <div>
         <div class="form-check">
-            <input type="checkbox" name="bill" id="bill" class="form-check-input" onchange="calculatePrice()">
-            <label for="bill" class="form-check-label">Schriftliche Rechnung (2S€)</label>
+            <input type="checkbox" name="bill" id="bill" class="form-check-input" onchange="refresh()">
+            <label for="bill" class="form-check-label">Schriftliche Rechnung (2€)</label>
         </div>
     </div>
+    -->
 
+    <!--
     <div id="customer-name-container">
         <label for="customer-name">Kunde</label>
         <input type="text" name="customer-name" id="cusomer-name" class="form-control">
     </div>
+    -->
 
     <h2 class="mt-3">Angebote</h2>
 
     <div>
         <div class="form-check">
-            <input type="checkbox" name="show-discount" id="show-discount" class="form-check-input" onchange="calculatePrice()">
+            <input type="checkbox" name="show-discount" id="show-discount" class="form-check-input" onchange="refresh()">
             <label for="show-discount" class="form-check-label">Rabatt</label>
         </div>
     </div>
 
     <div id="discount-container">
         <label for="discount" class="m-3">Rabatt in %:</label>
-        <input type="number" class="form-control" name="discount" id="discount" min="0" max="90" onchange="calculatePrice()" onkeyup="calculatePrice()" value="0">
+        <input type="number" class="form-control" name="discount" id="discount" min="0" max="90" onchange="refresh()" onkeyup="refresh()" value="0">
     </div>
 
     <hr>
@@ -104,7 +101,7 @@
 
     <div>
         <div class="form-check">
-            <input type="checkbox" name="round" id="round" class="form-check-input" onchange="calculatePrice()">
+            <input type="checkbox" name="round" id="round" class="form-check-input" onchange="refresh()">
             <label for="round" class="form-check-label">Ergebnis runden</label>
         </div>
     </div>
@@ -120,10 +117,11 @@
   </div>
   
   <script defer>
-    var priceColor = 3;
-    var priceBlackWhite = 1;
+    /*
+    var priceColor = 4;
+    var priceBlackWhite = 0.5;
 
-    function calculatePrice() {
+    function refresh() {
       let price = 0;
       // Get the values from the input elements
       let pageNumber = document.getElementById("pageNumber").value;
@@ -172,12 +170,12 @@
       }
 
       // bill
-      if (document.getElementById("bill").checked) {
-        document.getElementById("customer-name-container").classList.remove("d-none");
-        price += 2;
-      } else {
-        document.getElementById("customer-name-container").classList.add("d-none");
-      }
+      //if (document.getElementById("bill").checked) {
+      //  document.getElementById("customer-name-container").classList.remove("d-none");
+      //  price += 2;
+      //} else {
+      //  document.getElementById("customer-name-container").classList.add("d-none");
+      //}
 
       // calculate discount
       if (document.getElementById("show-discount").checked) {
@@ -200,7 +198,8 @@
       document.getElementById("resultBox").value = (document.getElementById("round").checked ? Math.ceil(price) : price.toFixed(2));
     }
 
-    calculatePrice();
+    refresh();
+    */
   </script>
 </body>
 </html>
